@@ -16,6 +16,7 @@ LABEL \
     org.label-schema.vcs-url="https://github.com/smizy/docker-apache-drill"
 
 # ENV DRILL_VERSION            $VERSION
+ENV DRILL_VERSION            1.17.0
 ENV DRILL_HOME               /usr/local/apache-drill-${DRILL_VERSION}
 ENV DRILL_CONF_DIR           ${DRILL_HOME}/conf
 ENV DRILL_LOG_DIR            /var/log/drill
