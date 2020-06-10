@@ -39,7 +39,7 @@ RUN set -x \
         procps \
         su-exec \ 
     && mirror_url=http://apache.mirrors.pair.com/ \
-    && wget -q -O - ${mirror_url}/drill/drill-${DRILL_VERSION}/apache-drill-${DRILL_VERSION}.tar.gz \
+    && wget -q -O - ${mirror_url}/drill/drill-${DRILL_VERSION}/apache-drill-${DRILL_VERSION}-bin.tar.gz \
         | tar -xzf - -C /usr/local \
     ## user/dir/permmsion
     && adduser -D  -g '' -s /sbin/nologin -u 1000 docker \
