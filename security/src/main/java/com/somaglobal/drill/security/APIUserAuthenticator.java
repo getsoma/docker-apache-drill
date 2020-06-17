@@ -24,7 +24,7 @@ import java.io.IOException;
 /*
 * Implement {@link org.apache.drill.exec.rpc.user.security.UserAuthenticator} for illustrating how to develop a custom authenticator and use it in Drill
 */
-@UserAuthenticatorTemplate(type = "myCustomAuthenticatorType")
+@UserAuthenticatorTemplate(type = "APIUserAuthenticator")
 public class APIUserAuthenticator implements UserAuthenticator {
 
   /**
