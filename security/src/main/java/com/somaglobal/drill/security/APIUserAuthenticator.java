@@ -16,6 +16,9 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.util.EntityUtils;
+
 import java.io.IOException;
 
 /*
@@ -51,11 +54,17 @@ public class APIUserAuthenticator implements UserAuthenticator {
     HttpClient client = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
 
     try {
-      HttpResponse response = client.execute(new HttpGet("http://app:5000/user/current"));
+      HttpResponse response = client.execute(new HttpGet("http://app:5000/api/user/current"));
       int statusCode = response.getStatusLine().getStatusCode();
 
       if (HttpStatus.SC_OK != statusCode) {
         throw new UserAuthenticationException(response.getStatusLine().getReasonPhrase());
+      }
+
+      HttpEntity entity = response.getEntity();
+      String content = EntityUtils.toString(entity);
+      if (!content.contains("\"APIUser\":true")) {
+        throw new UserAuthenticationException("Non-API users cannot access drillbit");
       }
     } catch (IOException ex) {
       throw new UserAuthenticationException(ex.getMessage());
