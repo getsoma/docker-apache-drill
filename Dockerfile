@@ -89,7 +89,8 @@ ENV MAVEN_CONFIG "$USER_HOME_DIR/.m2"
 
 COPY security/*  ${DRILL_HOME}/security/
 RUN mvn -f ${DRILL_HOME}/security/pom.xml clean install \
-    && cp ${DRILL_HOME}/security/target/*.jar  ${DRILL_JARS_DIR}
+    && cp ${DRILL_HOME}/security/target/*.jar  ${DRILL_JARS_DIR} \
+    && cp ${DRILL_HOME}/security/target/*.jar  /usr/local/lib/
 
 COPY etc/*  ${DRILL_CONF_DIR}/
 COPY bin/*  /usr/local/bin/ 
