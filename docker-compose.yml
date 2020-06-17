@@ -1,34 +1,43 @@
 version: "2"
+​
 services:
-
-  zookeeper-1:
-    container_name: zookeeper-1    
-    networks: ["vnet"]
-    hostname: zookeeper-1.vnet
-    image: smizy/zookeeper:3.4-alpine
+  mongo:
+    image: mongo:3.4
+    command: mongod --smallfiles --logpath=/dev/null # --quiet
+    networks:
+      - backend
+      - drill
+    dns:
+      - 8.8.8.8
+      - 9.9.9.9
+  zookeeper:
+    container_name: zookeeper    
+    networks:
+      - drill
+    hostname: zookeeper
+    image: getsoma/apache-zookeeper:latest
     environment:
       - SERVICE_2181_NAME=zookeeper
       - SERVICE_2888_IGNORE=true
       - SERVICE_3888_IGNORE=true
-      
-    command: -server 1 1 vnet
-
-  drillbit-1:
-    container_name: drillbit-1
-    networks: ["vnet"]
-    hostname: drillbit-1.vnet
-    image: smizy/apache-drill:1.16.0-alpine
+    command: -server 1 1 drill
+​
+  drillbit:
+    container_name: drillbit
+    networks: 
+      - drill
+    hostname: drillbit
+    image: getsoma/apache-drill:latest
     ports: 
-      - 8047
-    depends_on: ["zookeeper-1"]  
+      - 8047:8047
+      - 31010:31010
+    depends_on: ["zookeeper"]  
     environment:
       - SERVICE_8047_NAME=drillbit
       - DRILL_HEAP=512M 
       - DRILL_MAX_DIRECT_MEMORY=1G   
-      - DRILL_ZOOKEEPER_QUORUM=zookeeper-1.vnet:2181 
-      
-
+      - DRILL_ZOOKEEPER_QUORUM=zookeeper:2181 
+​
 networks:
-  vnet:
-    external:
-      name: vnet 
+  backend:
+  drill:

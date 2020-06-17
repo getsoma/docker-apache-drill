@@ -19,6 +19,7 @@ LABEL \
 ENV DRILL_VERSION            1.17.0
 ENV DRILL_HOME               /usr/local/apache-drill-${DRILL_VERSION}
 ENV DRILL_CONF_DIR           ${DRILL_HOME}/conf
+ENV DRILL_JARS_DIR           ${DRILL_HOME}/jars
 ENV DRILL_LOG_DIR            /var/log/drill
 ENV DRILL_HEAP               4G
 ENV DRILL_MAX_DIRECT_MEMORY  8G
@@ -51,6 +52,10 @@ RUN set -x \
         ${DRILL_LOG_DIR} \
     && sed -i.bk -e 's/MaxPermSize/MaxMetaspaceSize/g' ${DRILL_CONF_DIR}/drill-env.sh \
     && sed -i.bk -e 's/MaxPermSize/MaxMetaspaceSize/g' ${DRILL_HOME}/bin/drill-config.sh  
+
+RUN cd security \
+    && mvn clean install
+COPY target/*.jar  ${DRILL_JARS_DIR}
 
 COPY etc/*  ${DRILL_CONF_DIR}/
 COPY bin/*  /usr/local/bin/ 
