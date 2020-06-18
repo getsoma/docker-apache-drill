@@ -1,5 +1,8 @@
 package com.somaglobal.drill.security;
 
+import java.nio.charset.Charset;
+import org.apache.commons.codec.binary.Base64;
+
 import org.apache.drill.common.config.DrillConfig;
 import org.apache.drill.exec.exception.DrillbitStartupException;
 import org.apache.drill.exec.rpc.user.security.UserAuthenticator;
@@ -15,6 +18,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.apache.http.HttpHeaders;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.util.EntityUtils;
@@ -47,26 +51,34 @@ public class APIUserAuthenticator implements UserAuthenticator {
    */
   @Override
   public void authenticate(String userName, String password) throws UserAuthenticationException {
-    CredentialsProvider provider = new BasicCredentialsProvider();
-    UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(userName, password);
-    provider.setCredentials(AuthScope.ANY, credentials);
+    System.out.println("Authenticating with userName: "+userName);
 
-    HttpClient client = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
+    HttpGet request = new HttpGet("http://docker.for.mac.host.internal:5000/api/user/current");
+    String auth = userName + ":" + password;
+    byte[] encodedAuth = Base64.encodeBase64(auth.getBytes(Charset.forName("US-ASCII")));
+    String authHeader = "Basic " + new String(encodedAuth);
+    request.setHeader(HttpHeaders.AUTHORIZATION, authHeader);
+    
+    HttpClient client = HttpClientBuilder.create().build();
 
     try {
-      HttpResponse response = client.execute(new HttpGet("http://app:5000/api/user/current"));
+      HttpResponse response = client.execute(request);
+    
       int statusCode = response.getStatusLine().getStatusCode();
-
+  
       if (HttpStatus.SC_OK != statusCode) {
+        System.out.println("ERROR: "+response.getStatusLine().getReasonPhrase());
         throw new UserAuthenticationException(response.getStatusLine().getReasonPhrase());
       }
 
       HttpEntity entity = response.getEntity();
       String content = EntityUtils.toString(entity);
       if (!content.contains("\"APIUser\":true")) {
+        System.out.println("Non-API users cannot access drillbit");
         throw new UserAuthenticationException("Non-API users cannot access drillbit");
       }
     } catch (IOException ex) {
+      System.out.println(ex.getMessage());
       throw new UserAuthenticationException(ex.getMessage());
     }
   }
