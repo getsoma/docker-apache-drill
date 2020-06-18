@@ -53,7 +53,8 @@ public class APIUserAuthenticator implements UserAuthenticator {
   public void authenticate(String userName, String password) throws UserAuthenticationException {
     System.out.println("Authenticating with userName: "+userName);
 
-    HttpGet request = new HttpGet("http://docker.for.mac.host.internal:5000/api/user/current");
+    HttpGet request = new HttpGet("http://app:5000/api/user/current");
+    // HttpGet request = new HttpGet("http://docker.for.mac.host.internal:5000/api/user/current");
     String auth = userName + ":" + password;
     byte[] encodedAuth = Base64.encodeBase64(auth.getBytes(Charset.forName("US-ASCII")));
     String authHeader = "Basic " + new String(encodedAuth);
